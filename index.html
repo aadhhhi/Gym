@@ -1,0 +1,2539 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APEX — Transform Your Body. Elevate Your Mind.</title>
+  <style>
+    /* ============================================================
+       FONTS & RESET
+    ============================================================ */
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+ 
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+    :root {
+      --bg: #080808;
+      --bg2: #0e0e0e;
+      --surface: #111111;
+      --surface2: #181818;
+      --border: rgba(255,255,255,0.06);
+      --accent: #c6f135;
+      --accent2: #a8e820;
+      --accent-glow: rgba(198,241,53,0.18);
+      --accent-glow-strong: rgba(198,241,53,0.35);
+      --text: #f0f0f0;
+      --text-muted: #888;
+      --text-dim: #555;
+      --white: #ffffff;
+      --radius: 16px;
+      --radius-sm: 8px;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-sans: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --nav-h: 76px;
+      --transition: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+ 
+    html { scroll-behavior: smooth; font-size: 16px; }
+ 
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      cursor: none;
+    }
+ 
+    ::selection { background: var(--accent); color: #000; }
+ 
+    /* ============================================================
+       CUSTOM CURSOR
+    ============================================================ */
+    #cursor {
+      position: fixed; top: 0; left: 0;
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s var(--transition), height 0.3s var(--transition), background 0.3s;
+      mix-blend-mode: difference;
+    }
+    #cursor-follower {
+      position: fixed; top: 0; left: 0;
+      width: 36px; height: 36px;
+      border: 1.5px solid rgba(198,241,53,0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s var(--transition), width 0.3s var(--transition), height 0.3s var(--transition), border-color 0.3s;
+    }
+    body:has(a:hover) #cursor,
+    body:has(button:hover) #cursor { width: 20px; height: 20px; }
+    body:has(a:hover) #cursor-follower,
+    body:has(button:hover) #cursor-follower { width: 56px; height: 56px; border-color: var(--accent); }
+ 
+    /* ============================================================
+       SCROLL PROGRESS
+    ============================================================ */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0;
+      height: 2px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), #80ff00);
+      z-index: 99990;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 10px var(--accent);
+    }
+ 
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 9000;
+      height: var(--nav-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+      transition: background 0.5s var(--transition), backdrop-filter 0.5s;
+    }
+    nav.scrolled {
+      background: rgba(8,8,8,0.88);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      text-decoration: none;
+      user-select: none;
+    }
+    .nav-links {
+      display: flex; gap: 36px; list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: var(--accent);
+      transition: width 0.35s var(--transition);
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-cta {
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    }
+    .nav-cta:hover {
+      background: var(--accent2);
+      box-shadow: 0 0 20px var(--accent-glow-strong);
+      transform: translateY(-1px);
+    }
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: transform 0.4s var(--transition), opacity 0.3s, background 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); background: var(--accent); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); background: var(--accent); }
+    /* Mobile Menu */
+    .mobile-menu {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(8,8,8,0.97);
+      backdrop-filter: blur(32px);
+      z-index: 8000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s var(--transition);
+    }
+    .mobile-menu.open { opacity: 1; pointer-events: all; display: flex; }
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.3s;
+    }
+    .mobile-menu a:hover { color: var(--accent); }
+ 
+    /* ============================================================
+       SECTION UTILITIES
+    ============================================================ */
+    section { position: relative; overflow: hidden; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 40px; }
+    .section-label {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-label::before {
+      content: '';
+      display: inline-block; width: 28px; height: 1.5px;
+      background: var(--accent);
+    }
+    h2.section-title {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      line-height: 0.95;
+      letter-spacing: 0.01em;
+      color: var(--white);
+    }
+    h2.section-title em {
+      font-style: normal;
+      -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: 1px rgba(255,255,255,0.35);
+    }
+ 
+    /* Scroll Animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(48px);
+      transition: opacity 0.8s var(--transition), transform 0.8s var(--transition);
+    }
+    .reveal.revealed { opacity: 1; transform: none; }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-60px);
+      transition: opacity 0.9s var(--transition), transform 0.9s var(--transition);
+    }
+    .reveal-left.revealed { opacity: 1; transform: none; }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.9s var(--transition), transform 0.9s var(--transition);
+    }
+    .reveal-right.revealed { opacity: 1; transform: none; }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.88);
+      transition: opacity 0.8s var(--transition), transform 0.8s var(--transition);
+    }
+    .reveal-scale.revealed { opacity: 1; transform: none; }
+    [data-delay="1"] { transition-delay: 0.1s !important; }
+    [data-delay="2"] { transition-delay: 0.2s !important; }
+    [data-delay="3"] { transition-delay: 0.3s !important; }
+    [data-delay="4"] { transition-delay: 0.4s !important; }
+    [data-delay="5"] { transition-delay: 0.5s !important; }
+    [data-delay="6"] { transition-delay: 0.6s !important; }
+ 
+    /* ============================================================
+       HERO
+    ============================================================ */
+    #hero {
+      min-height: 100svh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding-bottom: 80px;
+      padding-top: var(--nav-h);
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(8,8,8,0.6) 70%, var(--bg) 100%);
+    }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-eyebrow {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+      display: flex; align-items: center; gap: 12px;
+      opacity: 0;
+      animation: fadeUp 1s 0.3s var(--transition) forwards;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block; width: 36px; height: 1.5px;
+      background: var(--accent);
+    }
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: clamp(4.5rem, 12vw, 13rem);
+      line-height: 0.88;
+      letter-spacing: 0.01em;
+      color: var(--white);
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 1s 0.5s var(--transition) forwards;
+    }
+    .hero-headline .accent-word {
+      color: var(--accent);
+      position: relative;
+      display: inline-block;
+    }
+    .hero-headline .outline-word {
+      -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: 2px rgba(255,255,255,0.22);
+    }
+    .hero-bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .hero-sub {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      max-width: 420px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 1s 0.7s var(--transition) forwards;
+    }
+    .hero-actions {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 1s 0.85s var(--transition) forwards;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      padding: 15px 36px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 28px var(--accent-glow-strong), 0 4px 20px rgba(0,0,0,0.4);
+      transform: translateY(-2px);
+    }
+    .btn-primary .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      transform: scale(0);
+      animation: ripple-anim 0.6s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple-anim {
+      to { transform: scale(4); opacity: 0; }
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      padding: 14px 32px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: border-color 0.3s, color 0.3s, transform 0.2s;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.25);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      opacity: 0;
+      animation: fadeIn 1s 1.5s forwards;
+    }
+    .hero-scroll-hint span {
+      font-family: var(--font-sans);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .scroll-line {
+      width: 1px; height: 48px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollPulse 2s infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(0.5); transform-origin: top; }
+      50% { opacity: 1; transform: scaleY(1); }
+    }
+    .hero-ticker {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 2;
+      background: var(--accent);
+      padding: 10px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .ticker-inner {
+      display: inline-flex;
+      animation: ticker 22s linear infinite;
+    }
+    .ticker-inner span {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      color: #000;
+      padding: 0 36px;
+    }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+ 
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+ 
+    /* Floating shapes */
+    .hero-shape {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); pointer-events: none;
+    }
+    .hero-shape-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(198,241,53,0.08) 0%, transparent 70%);
+      top: -100px; right: -100px;
+      animation: floatShape 8s ease-in-out infinite;
+    }
+    .hero-shape-2 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(100,200,255,0.06) 0%, transparent 70%);
+      bottom: 20%; left: -80px;
+      animation: floatShape 11s ease-in-out infinite reverse;
+    }
+    @keyframes floatShape {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(20px, -30px); }
+    }
+ 
+    /* Typing cursor */
+    .typing-cursor {
+      display: inline-block;
+      width: 4px;
+      background: var(--accent);
+      animation: blink 1s step-end infinite;
+      vertical-align: bottom;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+ 
+    /* ============================================================
+       ABOUT
+    ============================================================ */
+    #about {
+      padding: 140px 0;
+      background: var(--bg2);
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .about-img-wrap {
+      position: relative;
+    }
+    .about-img-frame {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      background: var(--surface);
+    }
+    .about-img-frame img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.8s var(--transition);
+      filter: grayscale(20%) contrast(1.05);
+    }
+    .about-img-frame:hover img { transform: scale(1.04); }
+    .about-img-badge {
+      position: absolute;
+      bottom: -24px; right: -24px;
+      width: 110px; height: 110px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      box-shadow: 0 0 40px var(--accent-glow-strong);
+    }
+    .about-img-badge strong {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      line-height: 1;
+      color: #000;
+    }
+    .about-img-badge span {
+      font-family: var(--font-sans);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.7);
+    }
+    .about-img-accent {
+      position: absolute;
+      top: 24px; left: -16px;
+      width: 32px; height: 120px;
+      background: var(--accent);
+      border-radius: 16px;
+    }
+    .about-text .section-label { margin-bottom: 16px; }
+    .about-text p {
+      color: var(--text-muted);
+      line-height: 1.75;
+      font-size: 1rem;
+      font-weight: 300;
+      margin-top: 24px;
+      max-width: 500px;
+    }
+    .about-text p strong { color: var(--text); font-weight: 500; }
+    .counters {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .counter-item {
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .counter-item:hover {
+      border-color: rgba(198,241,53,0.2);
+      box-shadow: 0 0 20px rgba(198,241,53,0.05);
+    }
+    .counter-num {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      color: var(--accent);
+      line-height: 1;
+      display: block;
+    }
+    .counter-label {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-top: 6px;
+      display: block;
+    }
+ 
+    /* ============================================================
+       PROGRAMS
+    ============================================================ */
+    #programs {
+      padding: 140px 0;
+      background: var(--bg);
+    }
+    .programs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 64px;
+    }
+    .programs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .program-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.4s var(--transition), border-color 0.4s, box-shadow 0.4s;
+      transform-style: preserve-3d;
+    }
+    .program-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(198,241,53,0.08) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .program-card:hover {
+      transform: translateY(-8px) scale(1.01);
+      border-color: rgba(198,241,53,0.22);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 30px rgba(198,241,53,0.06);
+    }
+    .program-card:hover::before { opacity: 1; }
+    .program-icon {
+      width: 56px; height: 56px;
+      background: rgba(198,241,53,0.1);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 28px;
+      transition: background 0.3s, transform 0.3s;
+      font-size: 1.6rem;
+    }
+    .program-card:hover .program-icon {
+      background: rgba(198,241,53,0.18);
+      transform: scale(1.1) rotate(-5deg);
+    }
+    .program-card h3 {
+      font-family: var(--font-sans);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .program-card p {
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .program-card-arrow {
+      position: absolute;
+      bottom: 32px; right: 32px;
+      width: 40px; height: 40px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.3s;
+    }
+    .program-card:hover .program-card-arrow {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+      transform: rotate(45deg);
+    }
+    .program-card-num {
+      position: absolute;
+      top: 28px; right: 32px;
+      font-family: var(--font-display);
+      font-size: 4rem;
+      color: rgba(255,255,255,0.04);
+      line-height: 1;
+      transition: color 0.4s;
+    }
+    .program-card:hover .program-card-num { color: rgba(198,241,53,0.06); }
+ 
+    /* ============================================================
+       TRAINERS
+    ============================================================ */
+    #trainers {
+      padding: 140px 0;
+      background: var(--bg2);
+    }
+    .trainers-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 28px;
+      margin-top: 64px;
+    }
+    .trainer-card {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      cursor: pointer;
+      background: var(--surface);
+    }
+    .trainer-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.7s var(--transition), filter 0.5s;
+      filter: grayscale(30%);
+    }
+    .trainer-card:hover .trainer-img {
+      transform: scale(1.06);
+      filter: grayscale(0%);
+    }
+    .trainer-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.4) 50%, transparent 100%);
+      transition: background 0.4s;
+    }
+    .trainer-card:hover .trainer-overlay {
+      background: linear-gradient(to top, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.6) 50%, rgba(0,0,0,0.2) 100%);
+    }
+    .trainer-info {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 32px;
+      transform: translateY(0);
+      transition: transform 0.4s var(--transition);
+    }
+    .trainer-info h3 {
+      font-family: var(--font-sans);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .trainer-info .role {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .trainer-bio {
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-top: 12px;
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s var(--transition);
+    }
+    .trainer-card:hover .trainer-bio { max-height: 120px; }
+    .trainer-socials {
+      display: flex; gap: 10px;
+      margin-top: 16px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s 0.1s, transform 0.4s 0.1s var(--transition);
+    }
+    .trainer-card:hover .trainer-socials { opacity: 1; transform: none; }
+    .trainer-socials a {
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+    }
+    .trainer-socials a:hover { background: var(--accent); color: #000; }
+    .trainer-accent {
+      position: absolute;
+      top: 24px; left: 24px;
+      width: 8px; height: 36px;
+      background: var(--accent);
+      border-radius: 4px;
+      opacity: 0;
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: opacity 0.4s, transform 0.4s var(--transition);
+    }
+    .trainer-card:hover .trainer-accent { opacity: 1; transform: scaleY(1); }
+ 
+    /* ============================================================
+       RESULTS / TESTIMONIALS
+    ============================================================ */
+    #results {
+      padding: 140px 0;
+      background: var(--bg);
+    }
+    .results-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      margin-top: 64px;
+    }
+    /* Before/After Slider */
+    .ba-wrap {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      aspect-ratio: 4/5;
+      user-select: none;
+    }
+    .ba-after {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .ba-before {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #0e1a0a 0%, #1a2e14 100%);
+      display: flex; align-items: center; justify-content: center;
+      clip-path: inset(0 50% 0 0);
+      transition: clip-path 0s;
+    }
+    .ba-placeholder {
+      font-family: var(--font-display);
+      font-size: 4rem;
+      opacity: 0.15;
+      letter-spacing: 0.1em;
+    }
+    .ba-before .ba-placeholder { color: var(--accent); }
+    .ba-after .ba-placeholder { color: #666; }
+    .ba-label {
+      position: absolute;
+      bottom: 24px;
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+    .ba-label.before { left: 24px; background: rgba(255,255,255,0.12); color: var(--text-muted); }
+    .ba-label.after { right: 24px; background: var(--accent); color: #000; }
+    .ba-handle {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      background: var(--white);
+      cursor: ew-resize;
+      z-index: 4;
+    }
+    .ba-handle::before {
+      content: '⟷';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px; height: 44px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      color: #000;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+ 
+    /* Testimonials */
+    .testimonials-wrap { position: relative; }
+    .testimonial-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: absolute; top: 0; left: 0; right: 0;
+      opacity: 0;
+      transform: translateY(20px) scale(0.97);
+      transition: opacity 0.6s var(--transition), transform 0.6s var(--transition);
+      pointer-events: none;
+    }
+    .testimonial-card.active {
+      position: relative;
+      opacity: 1;
+      transform: none;
+      pointer-events: all;
+    }
+    .testimonial-stars {
+      display: flex; gap: 4px; margin-bottom: 20px;
+    }
+    .testimonial-stars span { color: var(--accent); font-size: 1rem; }
+    .testimonial-quote {
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    .testimonial-quote::before {
+      content: '"';
+      font-family: var(--font-display);
+      font-size: 5rem;
+      color: rgba(198,241,53,0.15);
+      line-height: 0;
+      vertical-align: -0.5em;
+      margin-right: 4px;
+    }
+    .testimonial-author {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .author-avatar {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--accent);
+      border: 2px solid rgba(198,241,53,0.2);
+    }
+    .author-name {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--white);
+    }
+    .author-detail {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+    .testimonial-nav {
+      display: flex; align-items: center; gap: 16px;
+      margin-top: 28px;
+    }
+    .t-nav-btn {
+      width: 44px; height: 44px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 1rem;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .t-nav-btn:hover { background: var(--accent); border-color: var(--accent); color: #000; }
+    .t-dots { display: flex; gap: 6px; }
+    .t-dot {
+      width: 6px; height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      transition: background 0.3s, width 0.3s;
+      cursor: pointer;
+    }
+    .t-dot.active { background: var(--accent); width: 20px; }
+ 
+    /* ============================================================
+       MEMBERSHIP
+    ============================================================ */
+    #membership {
+      padding: 140px 0;
+      background: var(--bg2);
+    }
+    .membership-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .pricing-toggle {
+      display: flex; align-items: center; gap: 12px;
+      justify-content: center;
+      margin-top: 28px;
+    }
+    .pricing-toggle span {
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+    .pricing-toggle span.active { color: var(--white); }
+    .toggle-switch {
+      width: 50px; height: 26px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      position: relative;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    .toggle-switch.on { border-color: var(--accent); }
+    .toggle-knob {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: var(--text-dim);
+      border-radius: 50%;
+      transition: transform 0.3s var(--transition), background 0.3s;
+    }
+    .toggle-switch.on .toggle-knob { transform: translateX(24px); background: var(--accent); }
+    .save-badge {
+      background: rgba(198,241,53,0.12);
+      color: var(--accent);
+      font-family: var(--font-sans);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(198,241,53,0.2);
+    }
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1000px; margin: 0 auto;
+    }
+    .plan-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 36px;
+      position: relative;
+      transition: transform 0.4s var(--transition), border-color 0.4s, box-shadow 0.4s;
+    }
+    .plan-card.featured {
+      background: linear-gradient(160deg, #111 0%, #0e1a06 100%);
+      border-color: rgba(198,241,53,0.3);
+      box-shadow: 0 0 40px rgba(198,241,53,0.08);
+    }
+    .plan-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(198,241,53,0.2);
+    }
+    .plan-card.featured:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(198,241,53,0.12); }
+    .plan-badge {
+      position: absolute;
+      top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-sans);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 16px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .plan-name {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+    .plan-price {
+      display: flex; align-items: flex-start; gap: 4px;
+      margin-bottom: 6px;
+    }
+    .plan-price .currency {
+      font-family: var(--font-sans);
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+    .plan-price .amount {
+      font-family: var(--font-display);
+      font-size: 4.5rem;
+      color: var(--white);
+      line-height: 1;
+    }
+    .plan-card.featured .plan-price .amount { color: var(--accent); }
+    .plan-price .period {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      align-self: flex-end;
+      margin-bottom: 8px;
+    }
+    .plan-desc {
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+    .plan-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 28px;
+    }
+    .plan-features { list-style: none; margin-bottom: 36px; }
+    .plan-features li {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      padding: 7px 0;
+    }
+    .plan-features li.on { color: var(--text); }
+    .plan-features li .check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem;
+      flex-shrink: 0;
+    }
+    .plan-features li.on .check { background: rgba(198,241,53,0.15); color: var(--accent); }
+    .plan-features li.off .check { background: rgba(255,255,255,0.04); color: var(--text-dim); }
+ 
+    /* ============================================================
+       FACILITIES
+    ============================================================ */
+    #facilities {
+      padding: 140px 0;
+      background: var(--bg);
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(2, 220px);
+      gap: 16px;
+      margin-top: 64px;
+    }
+    .gallery-item {
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      background: var(--surface);
+    }
+    .gallery-item:nth-child(1) { grid-column: span 5; grid-row: span 2; }
+    .gallery-item:nth-child(2) { grid-column: span 4; }
+    .gallery-item:nth-child(3) { grid-column: span 3; }
+    .gallery-item:nth-child(4) { grid-column: span 3; }
+    .gallery-item:nth-child(5) { grid-column: span 4; }
+    .gallery-item:nth-child(6) { grid-column: span 5; grid-row: span 1; }
+    .gallery-inner {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      transition: transform 0.6s var(--transition);
+    }
+    .gallery-item:hover .gallery-inner { transform: scale(1.04); }
+    .gallery-emoji {
+      font-size: 3.5rem;
+      opacity: 0.2;
+    }
+    .gallery-bg {
+      position: absolute; inset: 0;
+      transition: opacity 0.4s;
+    }
+    .gallery-item:nth-child(1) .gallery-bg { background: linear-gradient(135deg, #161616 0%, #0e1a06 100%); }
+    .gallery-item:nth-child(2) .gallery-bg { background: linear-gradient(135deg, #161616 0%, #1a1616 100%); }
+    .gallery-item:nth-child(3) .gallery-bg { background: linear-gradient(135deg, #0e0e1a 0%, #161620 100%); }
+    .gallery-item:nth-child(4) .gallery-bg { background: linear-gradient(135deg, #1a1610 0%, #1a1a0e 100%); }
+    .gallery-item:nth-child(5) .gallery-bg { background: linear-gradient(135deg, #100e1a 0%, #1a1020 100%); }
+    .gallery-item:nth-child(6) .gallery-bg { background: linear-gradient(135deg, #0e1a10 0%, #141e12 100%); }
+    .gallery-hover-overlay {
+      position: absolute; inset: 0;
+      background: rgba(198,241,53,0.06);
+      opacity: 0;
+      transition: opacity 0.4s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gallery-item:hover .gallery-hover-overlay { opacity: 1; }
+    .gallery-hover-overlay span {
+      background: rgba(198,241,53,0.9);
+      color: #000;
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 8px 18px;
+      border-radius: 20px;
+      transform: translateY(10px);
+      transition: transform 0.3s var(--transition);
+    }
+    .gallery-item:hover .gallery-hover-overlay span { transform: none; }
+    .gallery-label {
+      position: absolute;
+      bottom: 16px; left: 16px;
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      z-index: 2;
+    }
+    /* Lightbox */
+    .lightbox {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(20px);
+      z-index: 99000;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+    .lightbox.open { opacity: 1; pointer-events: all; }
+    .lightbox-content {
+      max-width: 800px; max-height: 80vh;
+      background: var(--surface);
+      border-radius: 24px;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 8rem;
+      width: 80vw; height: 60vw;
+      max-height: 60vh;
+      border: 1px solid var(--border);
+      transform: scale(0.9);
+      transition: transform 0.4s var(--transition);
+    }
+    .lightbox.open .lightbox-content { transform: scale(1); }
+    .lightbox-close {
+      position: absolute;
+      top: 32px; right: 32px;
+      width: 44px; height: 44px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text);
+      font-size: 1.2rem;
+      transition: background 0.3s, color 0.3s;
+    }
+    .lightbox-close:hover { background: var(--accent); color: #000; }
+ 
+    /* ============================================================
+       CTA SECTION
+    ============================================================ */
+    #cta {
+      padding: 140px 0;
+      background: var(--bg2);
+      text-align: center;
+      position: relative;
+    }
+    .cta-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(198,241,53,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .cta-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+    .cta-headline {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 9vw, 8rem);
+      line-height: 0.9;
+      letter-spacing: 0.01em;
+      color: var(--white);
+      margin-bottom: 24px;
+    }
+    .cta-headline .glow-text {
+      color: var(--accent);
+      text-shadow: 0 0 40px var(--accent-glow-strong);
+    }
+    .cta-sub {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 44px;
+    }
+    .cta-btn {
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      padding: 18px 52px;
+      border-radius: 40px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.3s, transform 0.3s;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .cta-btn:hover {
+      box-shadow: 0 0 50px var(--accent-glow-strong), 0 0 80px rgba(198,241,53,0.15);
+      transform: translateY(-3px) scale(1.02);
+    }
+    .cta-btn::after {
+      content: '';
+      position: absolute; inset: -2px;
+      border-radius: 42px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent));
+      background-size: 200% auto;
+      animation: shimmer 3s linear infinite;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .cta-btn:hover::after { opacity: 1; }
+    @keyframes shimmer { to { background-position: 200% center; } }
+ 
+    /* ============================================================
+       CONTACT
+    ============================================================ */
+    #contact {
+      padding: 140px 0;
+      background: var(--bg);
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      margin-top: 64px;
+    }
+    .contact-info p {
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.75;
+      max-width: 380px;
+      margin-bottom: 40px;
+    }
+    .contact-details { display: flex; flex-direction: column; gap: 20px; }
+    .contact-item {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .contact-icon {
+      width: 44px; height: 44px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .contact-item span {
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: var(--text-muted);
+    }
+    .contact-item strong { display: block; font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    /* Form */
+    .contact-form { display: flex; flex-direction: column; gap: 20px; }
+    .form-field { position: relative; }
+    .form-field label {
+      position: absolute;
+      top: 50%; left: 18px;
+      transform: translateY(-50%);
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      pointer-events: none;
+      transition: top 0.3s var(--transition), font-size 0.3s, color 0.3s, transform 0.3s;
+      letter-spacing: 0.04em;
+    }
+    .form-field.textarea label { top: 22px; transform: none; }
+    .form-field.focused label,
+    .form-field.filled label {
+      top: 10px; transform: none;
+      font-size: 0.68rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .form-field.textarea.focused label,
+    .form-field.textarea.filled label { top: 10px; }
+    .form-field input,
+    .form-field textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 28px 18px 12px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.3s;
+      resize: none;
+    }
+    .form-field textarea { min-height: 130px; }
+    .form-field input:focus,
+    .form-field textarea:focus { border-color: rgba(198,241,53,0.35); }
+    .form-field.error input,
+    .form-field.error textarea { border-color: rgba(255,80,80,0.5); }
+    .form-error-msg {
+      position: absolute;
+      bottom: -18px; left: 0;
+      font-size: 0.7rem;
+      color: rgba(255,80,80,0.8);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .form-field.error .form-error-msg { opacity: 1; }
+    .form-submit {
+      align-self: flex-start;
+    }
+    .form-success {
+      display: none;
+      background: rgba(198,241,53,0.08);
+      border: 1px solid rgba(198,241,53,0.2);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      color: var(--accent);
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .map-placeholder {
+      margin-top: 40px;
+      height: 200px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .map-grid-lines {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    .map-pin {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .map-pin-icon {
+      width: 40px; height: 40px;
+      background: var(--accent);
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 20px var(--accent-glow-strong);
+      animation: bounce 2s ease-in-out infinite;
+    }
+    .map-pin-icon::after {
+      content: '●';
+      transform: rotate(45deg);
+      font-size: 0.8rem;
+      color: #000;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: rotate(-45deg) translateY(0); }
+      50% { transform: rotate(-45deg) translateY(-6px); }
+    }
+    .map-pin-label {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+ 
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 60px 0 40px;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(3, 1fr);
+      gap: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .footer-brand .nav-logo { display: block; margin-bottom: 16px; }
+    .footer-brand p {
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 260px;
+    }
+    .footer-col h4 {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a {
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-col ul a:hover { color: var(--accent); }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-copy {
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: var(--text-dim);
+    }
+    .footer-socials { display: flex; gap: 10px; }
+    .footer-socials a {
+      width: 36px; height: 36px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.3s;
+    }
+    .footer-socials a:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+      transform: translateY(-2px);
+    }
+ 
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1100px) {
+      .programs-grid { grid-template-columns: repeat(2, 1fr); }
+      .trainers-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .about-grid { grid-template-columns: 1fr; gap: 48px; }
+      .about-img-wrap { max-width: 400px; }
+      .results-layout { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .plans-grid { grid-template-columns: 1fr; max-width: 400px; }
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+      }
+      .gallery-item { grid-column: span 1 !important; grid-row: span 1 !important; height: 180px; }
+    }
+    @media (max-width: 768px) {
+      :root { --nav-h: 64px; }
+      .container { padding: 0 20px; }
+      nav { padding: 0 20px; }
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      .programs-grid { grid-template-columns: 1fr; }
+      .trainers-grid { grid-template-columns: 1fr; }
+      .programs-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .counters { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      section { padding: 80px 0; }
+      #hero { padding-bottom: 60px; }
+      .hero-bottom { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+ 
+  <!-- Custom Cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-follower"></div>
+ 
+  <!-- Scroll Progress -->
+  <div id="scroll-progress"></div>
+ 
+  <!-- NAV -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">APEX</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#programs">Programs</a></li>
+      <li><a href="#trainers">Trainers</a></li>
+      <li><a href="#membership">Pricing</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Join Now</button>
+    <div class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+ 
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#about" class="mobile-link">About</a>
+    <a href="#programs" class="mobile-link">Programs</a>
+    <a href="#trainers" class="mobile-link">Trainers</a>
+    <a href="#membership" class="mobile-link">Pricing</a>
+    <a href="#contact" class="mobile-link">Contact</a>
+  </div>
+ 
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg">
+      <canvas id="heroCanvas" class="hero-canvas"></canvas>
+      <div class="hero-overlay"></div>
+      <div class="hero-shape hero-shape-1"></div>
+      <div class="hero-shape hero-shape-2"></div>
+    </div>
+    <div class="container hero-content">
+      <div class="hero-eyebrow">Premier Fitness Experience · Est. 2010</div>
+      <h1 class="hero-headline">
+        <span id="typing-text"></span><span class="typing-cursor"></span><br>
+        <span class="outline-word">Elevate</span> Your <span class="accent-word">Mind.</span>
+      </h1>
+      <div class="hero-bottom">
+        <p class="hero-sub">Where elite coaching meets cutting-edge science. Forge your strongest self inside a space built for transformation.</p>
+        <div class="hero-actions">
+          <a href="#contact" class="btn-primary">
+            Join Now
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#programs" class="btn-ghost">Explore Programs</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+    <div class="hero-ticker">
+      <div class="ticker-inner" id="ticker">
+        <span>Strength Training</span><span>·</span>
+        <span>Personal Coaching</span><span>·</span>
+        <span>Cardio Blast</span><span>·</span>
+        <span>Yoga & Recovery</span><span>·</span>
+        <span>Nutrition Plans</span><span>·</span>
+        <span>Community Support</span><span>·</span>
+        <span>Strength Training</span><span>·</span>
+        <span>Personal Coaching</span><span>·</span>
+        <span>Cardio Blast</span><span>·</span>
+        <span>Yoga & Recovery</span><span>·</span>
+        <span>Nutrition Plans</span><span>·</span>
+        <span>Community Support</span><span>·</span>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-img-wrap reveal-left">
+          <div class="about-img-frame">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,#0e1a06 0%,#1a2e14 40%,#0a1208 100%);display:flex;align-items:center;justify-content:center;font-size:8rem;opacity:0.15;font-family:var(--font-display);letter-spacing:0.1em;color:var(--accent);">APEX</div>
+          </div>
+          <div class="about-img-badge">
+            <strong>15</strong>
+            <span>Years of Excellence</span>
+          </div>
+          <div class="about-img-accent"></div>
+        </div>
+        <div class="about-text reveal-right">
+          <div class="section-label">Our Story</div>
+          <h2 class="section-title">Built for <em>Champions</em>,<br>Open to All.</h2>
+          <p>APEX was founded on one unwavering belief: <strong>every person has an elite athlete inside them</strong>. We built this space not just as a gym, but as a laboratory for human transformation.</p>
+          <p>Our team of world-class coaches, scientists, and athletes designed every program, every tool, and every inch of this facility to push you past what you thought was possible — and make the journey extraordinary.</p>
+          <div class="counters">
+            <div class="counter-item reveal" data-delay="1">
+              <span class="counter-num" data-target="4800">0</span>
+              <span class="counter-label">Active Members</span>
+            </div>
+            <div class="counter-item reveal" data-delay="2">
+              <span class="counter-num" data-target="32">0</span>
+              <span class="counter-label">Elite Trainers</span>
+            </div>
+            <div class="counter-item reveal" data-delay="3">
+              <span class="counter-num" data-target="15">0</span>
+              <span class="counter-label">Years Experience</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- PROGRAMS -->
+  <section id="programs">
+    <div class="container">
+      <div class="programs-header">
+        <div>
+          <div class="section-label reveal">What We Offer</div>
+          <h2 class="section-title reveal" data-delay="1">Train With<br><em>Purpose</em>.</h2>
+        </div>
+        <p class="reveal reveal-right" style="max-width:300px;font-size:0.9rem;font-weight:300;color:var(--text-muted);line-height:1.7;" data-delay="2">Every program is engineered with precision — from beginner foundations to elite athlete conditioning.</p>
+      </div>
+      <div class="programs-grid">
+        <div class="program-card reveal" data-delay="1">
+          <span class="program-card-num">01</span>
+          <div class="program-icon">🏋️</div>
+          <h3>Strength Training</h3>
+          <p>Powerlifting, Olympic lifting, and functional strength protocols built to forge maximum muscle and raw power.</p>
+          <div class="program-card-arrow">→</div>
+        </div>
+        <div class="program-card reveal" data-delay="2">
+          <span class="program-card-num">02</span>
+          <div class="program-icon">⚡</div>
+          <h3>Cardio & HIIT</h3>
+          <p>High-intensity interval training and metabolic conditioning that burns fat, builds endurance, and ignites your engine.</p>
+          <div class="program-card-arrow">→</div>
+        </div>
+        <div class="program-card reveal" data-delay="3">
+          <span class="program-card-num">03</span>
+          <div class="program-icon">🎯</div>
+          <h3>Personal Coaching</h3>
+          <p>1-on-1 elite coaching with a dedicated trainer who designs and evolves your program around your exact goals.</p>
+          <div class="program-card-arrow">→</div>
+        </div>
+        <div class="program-card reveal" data-delay="4">
+          <span class="program-card-num">04</span>
+          <div class="program-icon">🧘</div>
+          <h3>Yoga & Recovery</h3>
+          <p>Mobility, breathwork, and deep recovery science. Because the gains happen when you rest with intention.</p>
+          <div class="program-card-arrow">→</div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- TRAINERS -->
+  <section id="trainers">
+    <div class="container">
+      <div class="section-label reveal">The Team</div>
+      <h2 class="section-title reveal" data-delay="1">Expert <em>Coaches</em>,<br>Real Results.</h2>
+      <div class="trainers-grid">
+        <div class="trainer-card reveal" data-delay="1">
+          <div style="width:100%;height:100%;background:linear-gradient(160deg,#111 0%,#1a1a12 100%);display:flex;align-items:center;justify-content:center;font-size:6rem;opacity:0.15;">💪</div>
+          <div class="trainer-overlay"></div>
+          <div class="trainer-accent"></div>
+          <div class="trainer-info">
+            <h3>Marcus Reid</h3>
+            <div class="role">Strength Coach</div>
+            <div class="trainer-bio">Former Olympic powerlifter, 12 years coaching elite athletes. Specializes in progressive overload and competition prep.</div>
+            <div class="trainer-socials">
+              <a href="#">ig</a><a href="#">tw</a><a href="#">in</a>
+            </div>
+          </div>
+        </div>
+        <div class="trainer-card reveal" data-delay="2">
+          <div style="width:100%;height:100%;background:linear-gradient(160deg,#111 0%,#121a18 100%);display:flex;align-items:center;justify-content:center;font-size:6rem;opacity:0.15;">🏃</div>
+          <div class="trainer-overlay"></div>
+          <div class="trainer-accent"></div>
+          <div class="trainer-info">
+            <h3>Serena Cole</h3>
+            <div class="role">Cardio & HIIT</div>
+            <div class="trainer-bio">CrossFit Level 3 coach and marathon finisher. Builds endurance programs that feel like nothing else on earth.</div>
+            <div class="trainer-socials">
+              <a href="#">ig</a><a href="#">tw</a><a href="#">in</a>
+            </div>
+          </div>
+        </div>
+        <div class="trainer-card reveal" data-delay="3">
+          <div style="width:100%;height:100%;background:linear-gradient(160deg,#111 0%,#1a1218 100%);display:flex;align-items:center;justify-content:center;font-size:6rem;opacity:0.15;">🧠</div>
+          <div class="trainer-overlay"></div>
+          <div class="trainer-accent"></div>
+          <div class="trainer-info">
+            <h3>Dev Patel</h3>
+            <div class="role">Personal Coach</div>
+            <div class="trainer-bio">Sports science PhD and certified nutritionist. Precision-engineered programs backed by the latest research.</div>
+            <div class="trainer-socials">
+              <a href="#">ig</a><a href="#">tw</a><a href="#">in</a>
+            </div>
+          </div>
+        </div>
+        <div class="trainer-card reveal" data-delay="4">
+          <div style="width:100%;height:100%;background:linear-gradient(160deg,#111 0%,#121a14 100%);display:flex;align-items:center;justify-content:center;font-size:6rem;opacity:0.15;">🌿</div>
+          <div class="trainer-overlay"></div>
+          <div class="trainer-accent"></div>
+          <div class="trainer-info">
+            <h3>Yuna Park</h3>
+            <div class="role">Yoga & Recovery</div>
+            <div class="trainer-bio">200-hr RYT and mobility specialist. Helps athletes recover faster and move with effortless precision.</div>
+            <div class="trainer-socials">
+              <a href="#">ig</a><a href="#">tw</a><a href="#">in</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- RESULTS -->
+  <section id="results">
+    <div class="container">
+      <div class="section-label reveal">Proof It Works</div>
+      <h2 class="section-title reveal" data-delay="1">Real People,<br><em>Real Transformations.</em></h2>
+      <div class="results-layout">
+        <!-- Before/After Slider -->
+        <div class="ba-wrap reveal-left" id="baWrap">
+          <div class="ba-after">
+            <div class="ba-placeholder">AFTER</div>
+            <span class="ba-label after">After</span>
+          </div>
+          <div class="ba-before" id="baBefore">
+            <div class="ba-placeholder">BEFORE</div>
+            <span class="ba-label before">Before</span>
+          </div>
+          <div class="ba-handle" id="baHandle"></div>
+        </div>
+        <!-- Testimonials -->
+        <div class="testimonials-wrap reveal-right">
+          <div id="testimonialContainer">
+            <div class="testimonial-card active">
+              <div class="testimonial-stars">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+              </div>
+              <p class="testimonial-quote">I lost 28 lbs in 4 months and gained the confidence I never thought I'd have. APEX didn't just transform my body — it rewired how I see myself.</p>
+              <div class="testimonial-author">
+                <div class="author-avatar">JM</div>
+                <div>
+                  <div class="author-name">Jamie Mitchell</div>
+                  <div class="author-detail">Member since 2022 · Lost 28 lbs</div>
+                </div>
+              </div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-stars">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+              </div>
+              <p class="testimonial-quote">The personal coaching program is unlike anything I've experienced. Dev built a plan so precise, it felt designed by a machine — but executed with genuine human care.</p>
+              <div class="testimonial-author">
+                <div class="author-avatar">AK</div>
+                <div>
+                  <div class="author-name">Aisha Khan</div>
+                  <div class="author-detail">Member since 2023 · +18 lbs muscle</div>
+                </div>
+              </div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-stars">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+              </div>
+              <p class="testimonial-quote">Six months ago I couldn't do a single pull-up. Marcus had me competing in my first powerlifting meet by month four. This place is the real deal.</p>
+              <div class="testimonial-author">
+                <div class="author-avatar">TW</div>
+                <div>
+                  <div class="author-name">Tyler Wu</div>
+                  <div class="author-detail">Member since 2024 · Powerlifting athlete</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-nav">
+            <button class="t-nav-btn" id="tPrev">←</button>
+            <button class="t-nav-btn" id="tNext">→</button>
+            <div class="t-dots" id="tDots">
+              <div class="t-dot active"></div>
+              <div class="t-dot"></div>
+              <div class="t-dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- MEMBERSHIP -->
+  <section id="membership">
+    <div class="container">
+      <div class="membership-header">
+        <div class="section-label reveal" style="justify-content:center;">Membership</div>
+        <h2 class="section-title reveal" data-delay="1">Choose Your<br><em>Journey.</em></h2>
+        <div class="pricing-toggle reveal" data-delay="2">
+          <span id="monthlyLabel" class="active">Monthly</span>
+          <div class="toggle-switch" id="pricingToggle">
+            <div class="toggle-knob"></div>
+          </div>
+          <span id="yearlyLabel">Yearly</span>
+          <span class="save-badge">Save 20%</span>
+        </div>
+      </div>
+      <div class="plans-grid">
+        <div class="plan-card reveal" data-delay="1">
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">
+            <span class="currency">$</span>
+            <span class="amount" data-monthly="49" data-yearly="39">49</span>
+            <span class="period">/mo</span>
+          </div>
+          <div class="plan-desc">Everything you need to get started and build a solid foundation.</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li class="on"><span class="check">✓</span> Full gym access</li>
+            <li class="on"><span class="check">✓</span> Group classes (5/week)</li>
+            <li class="on"><span class="check">✓</span> Fitness assessment</li>
+            <li class="off"><span class="check">✗</span> Personal coaching</li>
+            <li class="off"><span class="check">✗</span> Nutrition plan</li>
+            <li class="off"><span class="check">✗</span> Recovery suite</li>
+          </ul>
+          <a href="#contact" class="btn-ghost" style="width:100%;justify-content:center;">Get Started</a>
+        </div>
+        <div class="plan-card featured reveal" data-delay="2">
+          <div class="plan-badge">Most Popular</div>
+          <div class="plan-name">Elite</div>
+          <div class="plan-price">
+            <span class="currency">$</span>
+            <span class="amount" data-monthly="89" data-yearly="71">89</span>
+            <span class="period">/mo</span>
+          </div>
+          <div class="plan-desc">The full APEX experience — training, coaching, and recovery, unified.</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li class="on"><span class="check">✓</span> Full gym access</li>
+            <li class="on"><span class="check">✓</span> Unlimited group classes</li>
+            <li class="on"><span class="check">✓</span> 4 personal coaching sessions</li>
+            <li class="on"><span class="check">✓</span> Custom nutrition plan</li>
+            <li class="on"><span class="check">✓</span> Recovery suite access</li>
+            <li class="off"><span class="check">✗</span> Unlimited 1-on-1 coaching</li>
+          </ul>
+          <a href="#contact" class="btn-primary" style="width:100%;justify-content:center;">Get Started</a>
+        </div>
+        <div class="plan-card reveal" data-delay="3">
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">
+            <span class="currency">$</span>
+            <span class="amount" data-monthly="149" data-yearly="119">149</span>
+            <span class="period">/mo</span>
+          </div>
+          <div class="plan-desc">Unlimited everything. For those who are completely committed to mastery.</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li class="on"><span class="check">✓</span> Full gym access</li>
+            <li class="on"><span class="check">✓</span> Unlimited group classes</li>
+            <li class="on"><span class="check">✓</span> Unlimited 1-on-1 coaching</li>
+            <li class="on"><span class="check">✓</span> Custom nutrition plan</li>
+            <li class="on"><span class="check">✓</span> Recovery suite access</li>
+            <li class="on"><span class="check">✓</span> Priority booking + VIP events</li>
+          </ul>
+          <a href="#contact" class="btn-ghost" style="width:100%;justify-content:center;">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- FACILITIES -->
+  <section id="facilities">
+    <div class="container">
+      <div class="section-label reveal">The Space</div>
+      <h2 class="section-title reveal" data-delay="1">Where Champions<br><em>Train.</em></h2>
+      <div class="gallery-grid">
+        <div class="gallery-item reveal" data-delay="1">
+          <div class="gallery-bg"></div>
+          <div class="gallery-inner"><span class="gallery-emoji">🏋️</span></div>
+          <div class="gallery-hover-overlay"><span>View</span></div>
+          <span class="gallery-label">Main Floor</span>
+        </div>
+        <div class="gallery-item reveal" data-delay="2">
+          <div class="gallery-bg"></div>
+          <div class="gallery-inner"><span class="gallery-emoji">🔥</span></div>
+          <div class="gallery-hover-overlay"><span>View</span></div>
+          <span class="gallery-label">HIIT Zone</span>
+        </div>
+        <div class="gallery-item reveal" data-delay="3">
+          <div class="gallery-bg"></div>
+          <div class="gallery-inner"><span class="gallery-emoji">🧘</span></div>
+          <div class="gallery-hover-overlay"><span>View</span></div>
+          <span class="gallery-label">Recovery Studio</span>
+        </div>
+        <div class="gallery-item reveal" data-delay="4">
+          <div class="gallery-bg"></div>
+          <div class="gallery-inner"><span class="gallery-emoji">💧</span></div>
+          <div class="gallery-hover-overlay"><span>View</span></div>
+          <span class="gallery-label">Hydro Spa</span>
+        </div>
+        <div class="gallery-item reveal" data-delay="5">
+          <div class="gallery-bg"></div>
+          <div class="gallery-inner"><span class="gallery-emoji">⚡</span></div>
+          <div class="gallery-hover-overlay"><span>View</span></div>
+          <span class="gallery-label">Cardio Deck</span>
+        </div>
+        <div class="gallery-item reveal" data-delay="6">
+          <div class="gallery-bg"></div>
+          <div class="gallery-inner"><span class="gallery-emoji">🥗</span></div>
+          <div class="gallery-hover-overlay"><span>View</span></div>
+          <span class="gallery-label">Nutrition Bar</span>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- CTA -->
+  <section id="cta">
+    <div class="cta-bg"></div>
+    <div class="container">
+      <div class="cta-content">
+        <div class="section-label reveal" style="justify-content:center;">Your Time Is Now</div>
+        <h2 class="cta-headline reveal" data-delay="1">
+          Start Your<br><span class="glow-text">Transformation</span><br>Today.
+        </h2>
+        <p class="cta-sub reveal" data-delay="2">No excuses. No tomorrow. The person you want to become is waiting on the other side of the door you're about to open.</p>
+        <a href="#contact" class="cta-btn reveal" data-delay="3">
+          Claim Your First Week Free
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8h14M8 1l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-label reveal">Get In Touch</div>
+      <h2 class="section-title reveal" data-delay="1">Start Your<br><em>Journey.</em></h2>
+      <div class="contact-grid">
+        <div class="contact-info reveal-left">
+          <p>Whether you're ready to join, have questions about programs, or simply want to see the facility — we'd love to hear from you. Every great transformation starts with a single message.</p>
+          <div class="contact-details">
+            <div class="contact-item">
+              <div class="contact-icon">📍</div>
+              <div>
+                <strong>Location</strong>
+                <span>123 Apex Avenue, Fitness District, NY 10001</span>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">📞</div>
+              <div>
+                <strong>Phone</strong>
+                <span>+1 (800) APEX-GYM</span>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">✉️</div>
+              <div>
+                <strong>Email</strong>
+                <span>hello@apexfitness.com</span>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">🕐</div>
+              <div>
+                <strong>Hours</strong>
+                <span>Mon–Fri 5am–11pm · Sat–Sun 6am–10pm</span>
+              </div>
+            </div>
+          </div>
+          <div class="map-placeholder">
+            <div class="map-grid-lines"></div>
+            <div class="map-pin">
+              <div class="map-pin-icon"></div>
+              <div class="map-pin-label">APEX Fitness</div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal-right">
+          <form class="contact-form" id="contactForm" novalidate>
+            <div class="form-field" id="fieldName">
+              <label for="fname">Your Name</label>
+              <input type="text" id="fname" name="name" autocomplete="off" />
+              <span class="form-error-msg">Please enter your name.</span>
+            </div>
+            <div class="form-field" id="fieldEmail">
+              <label for="femail">Email Address</label>
+              <input type="email" id="femail" name="email" autocomplete="off" />
+              <span class="form-error-msg">Please enter a valid email.</span>
+            </div>
+            <div class="form-field" id="fieldPhone">
+              <label for="fphone">Phone (optional)</label>
+              <input type="tel" id="fphone" name="phone" autocomplete="off" />
+            </div>
+            <div class="form-field textarea" id="fieldMsg">
+              <label for="fmsg">Your Message</label>
+              <textarea id="fmsg" name="message" rows="4"></textarea>
+              <span class="form-error-msg">Please enter a message.</span>
+            </div>
+            <div class="form-submit">
+              <button type="submit" class="btn-primary">
+                Send Message
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <div class="form-success" id="formSuccess">
+              ✓ Message sent! We'll be in touch within 24 hours.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo">APEX</a>
+          <p>Where ordinary people become extraordinary athletes. Premier fitness since 2010.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Programs</h4>
+          <ul>
+            <li><a href="#programs">Strength Training</a></li>
+            <li><a href="#programs">Cardio & HIIT</a></li>
+            <li><a href="#programs">Personal Coaching</a></li>
+            <li><a href="#programs">Yoga & Recovery</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#trainers">Our Team</a></li>
+            <li><a href="#membership">Pricing</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+            <li><a href="#">Accessibility</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 APEX Fitness. All rights reserved. Built for champions.</p>
+        <div class="footer-socials">
+          <a href="#" title="Instagram">ig</a>
+          <a href="#" title="Twitter">tw</a>
+          <a href="#" title="Facebook">fb</a>
+          <a href="#" title="YouTube">yt</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+ 
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-content" id="lightboxContent"></div>
+    <button class="lightbox-close" id="lightboxClose">✕</button>
+  </div>
+ 
+  <script>
+    /* ============================================================
+       CURSOR
+    ============================================================ */
+    const cursor = document.getElementById('cursor');
+    const follower = document.getElementById('cursor-follower');
+    let mouseX = 0, mouseY = 0, folX = 0, folY = 0;
+ 
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX; mouseY = e.clientY;
+      cursor.style.left = mouseX + 'px';
+      cursor.style.top = mouseY + 'px';
+    });
+ 
+    function animFollower() {
+      folX += (mouseX - folX) * 0.12;
+      folY += (mouseY - folY) * 0.12;
+      follower.style.left = folX + 'px';
+      follower.style.top = folY + 'px';
+      requestAnimationFrame(animFollower);
+    }
+    animFollower();
+ 
+    /* ============================================================
+       SCROLL PROGRESS
+    ============================================================ */
+    const progress = document.getElementById('scroll-progress');
+    window.addEventListener('scroll', () => {
+      const s = document.documentElement.scrollTop;
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = (s / h * 100) + '%';
+    }, { passive: true });
+ 
+    /* ============================================================
+       NAVBAR SCROLL
+    ============================================================ */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+ 
+    /* ============================================================
+       HAMBURGER / MOBILE MENU
+    ============================================================ */
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+ 
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+      });
+    });
+ 
+    /* ============================================================
+       HERO CANVAS — particle field
+    ============================================================ */
+    const canvas = document.getElementById('heroCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let W, H;
+ 
+    function resizeCanvas() {
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+ 
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.r = Math.random() * 1.2 + 0.3;
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.vy = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.4 + 0.05;
+        this.pulse = Math.random() * Math.PI * 2;
+        this.pulseSpeed = Math.random() * 0.01 + 0.005;
+      }
+      update() {
+        this.x += this.vx; this.y += this.vy;
+        this.pulse += this.pulseSpeed;
+        if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+      }
+      draw() {
+        const o = this.opacity * (0.7 + 0.3 * Math.sin(this.pulse));
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(198,241,53,${o})`;
+        ctx.fill();
+      }
+    }
+ 
+    for (let i = 0; i < 120; i++) particles.push(new Particle());
+ 
+    // Lines between close particles
+    function drawConnections() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 90) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(198,241,53,${(1 - dist / 90) * 0.06})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+ 
+    function animCanvas() {
+      ctx.clearRect(0, 0, W, H);
+      // Subtle radial gradient overlay
+      const grad = ctx.createRadialGradient(W * 0.5, H * 0.3, 0, W * 0.5, H * 0.3, W * 0.6);
+      grad.addColorStop(0, 'rgba(198,241,53,0.03)');
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+ 
+      drawConnections();
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animCanvas);
+    }
+    animCanvas();
+ 
+    /* ============================================================
+       TYPING ANIMATION (HERO)
+    ============================================================ */
+    const typingEl = document.getElementById('typing-text');
+    const phrases = ['Transform', 'Unleash', 'Redefine', 'Elevate'];
+    let phraseIdx = 0, charIdx = 0, deleting = false;
+ 
+    function typeLoop() {
+      const phrase = phrases[phraseIdx];
+      if (!deleting) {
+        typingEl.textContent = phrase.slice(0, charIdx + 1);
+        charIdx++;
+        if (charIdx === phrase.length) {
+          deleting = true;
+          setTimeout(typeLoop, 1800);
+          return;
+        }
+      } else {
+        typingEl.textContent = phrase.slice(0, charIdx - 1);
+        charIdx--;
+        if (charIdx === 0) {
+          deleting = false;
+          phraseIdx = (phraseIdx + 1) % phrases.length;
+        }
+      }
+      setTimeout(typeLoop, deleting ? 55 : 95);
+    }
+    setTimeout(typeLoop, 1200);
+ 
+    /* ============================================================
+       SCROLL REVEAL — Intersection Observer
+    ============================================================ */
+    const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => revealObs.observe(el));
+ 
+    /* ============================================================
+       ANIMATED COUNTERS
+    ============================================================ */
+    const counterEls = document.querySelectorAll('.counter-num[data-target]');
+    const counterObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animCounter(entry.target);
+          counterObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    counterEls.forEach(el => counterObs.observe(el));
+ 
+    function animCounter(el) {
+      const target = +el.dataset.target;
+      const suffix = target > 100 ? '+' : '';
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = Math.floor(current) + suffix;
+        if (current >= target) clearInterval(timer);
+      }, 18);
+    }
+ 
+    /* ============================================================
+       PROGRAM CARD TILT
+    ============================================================ */
+    document.querySelectorAll('.program-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = (e.clientX - cx) / (rect.width / 2);
+        const dy = (e.clientY - cy) / (rect.height / 2);
+        card.style.transform = `translateY(-8px) scale(1.01) rotateX(${-dy * 5}deg) rotateY(${dx * 5}deg)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+ 
+    /* ============================================================
+       BEFORE/AFTER SLIDER
+    ============================================================ */
+    const baWrap = document.getElementById('baWrap');
+    const baBefore = document.getElementById('baBefore');
+    const baHandle = document.getElementById('baHandle');
+    let isDragging = false;
+ 
+    function setSlider(x) {
+      const rect = baWrap.getBoundingClientRect();
+      let pct = ((x - rect.left) / rect.width) * 100;
+      pct = Math.max(5, Math.min(95, pct));
+      baBefore.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+      baHandle.style.left = pct + '%';
+    }
+ 
+    baHandle.addEventListener('mousedown', () => { isDragging = true; });
+    baHandle.addEventListener('touchstart', () => { isDragging = true; }, { passive: true });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+    window.addEventListener('touchend', () => { isDragging = false; });
+    window.addEventListener('mousemove', e => { if (isDragging) setSlider(e.clientX); });
+    window.addEventListener('touchmove', e => { if (isDragging) setSlider(e.touches[0].clientX); }, { passive: true });
+ 
+    /* ============================================================
+       TESTIMONIALS CAROUSEL
+    ============================================================ */
+    const tCards = document.querySelectorAll('.testimonial-card');
+    const tDots = document.querySelectorAll('.t-dot');
+    let tIdx = 0;
+ 
+    function showTestimonial(n) {
+      tCards[tIdx].classList.remove('active');
+      tDots[tIdx].classList.remove('active');
+      tIdx = (n + tCards.length) % tCards.length;
+      tCards[tIdx].classList.add('active');
+      tDots[tIdx].classList.add('active');
+    }
+    document.getElementById('tNext').addEventListener('click', () => showTestimonial(tIdx + 1));
+    document.getElementById('tPrev').addEventListener('click', () => showTestimonial(tIdx - 1));
+    tDots.forEach((dot, i) => dot.addEventListener('click', () => showTestimonial(i)));
+    setInterval(() => showTestimonial(tIdx + 1), 5000);
+ 
+    /* ============================================================
+       PRICING TOGGLE
+    ============================================================ */
+    const pricingToggle = document.getElementById('pricingToggle');
+    const monthlyLabel = document.getElementById('monthlyLabel');
+    const yearlyLabel = document.getElementById('yearlyLabel');
+    let isYearly = false;
+ 
+    pricingToggle.addEventListener('click', () => {
+      isYearly = !isYearly;
+      pricingToggle.classList.toggle('on', isYearly);
+      monthlyLabel.classList.toggle('active', !isYearly);
+      yearlyLabel.classList.toggle('active', isYearly);
+      document.querySelectorAll('.plan-card .amount').forEach(el => {
+        el.textContent = isYearly ? el.dataset.yearly : el.dataset.monthly;
+      });
+    });
+ 
+    /* ============================================================
+       GALLERY LIGHTBOX
+    ============================================================ */
+    const lightbox = document.getElementById('lightbox');
+    const lightboxContent = document.getElementById('lightboxContent');
+    const lightboxClose = document.getElementById('lightboxClose');
+    const galleryLabels = ['Main Floor 🏋️', 'HIIT Zone 🔥', 'Recovery Studio 🧘', 'Hydro Spa 💧', 'Cardio Deck ⚡', 'Nutrition Bar 🥗'];
+    const galleryEmojis = ['🏋️', '🔥', '🧘', '💧', '⚡', '🥗'];
+ 
+    document.querySelectorAll('.gallery-item').forEach((item, i) => {
+      item.addEventListener('click', () => {
+        lightboxContent.innerHTML = `<div style="text-align:center;"><div style="font-size:5rem;margin-bottom:20px;">${galleryEmojis[i]}</div><div style="font-family:var(--font-display);font-size:2rem;letter-spacing:0.05em;color:var(--accent);">${galleryLabels[i]}</div></div>`;
+        lightbox.classList.add('open');
+      });
+    });
+    lightboxClose.addEventListener('click', () => lightbox.classList.remove('open'));
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.classList.remove('open'); });
+ 
+    /* ============================================================
+       FLOATING FORM LABELS
+    ============================================================ */
+    document.querySelectorAll('.form-field input, .form-field textarea').forEach(input => {
+      const field = input.closest('.form-field');
+      input.addEventListener('focus', () => field.classList.add('focused'));
+      input.addEventListener('blur', () => {
+        field.classList.remove('focused');
+        if (input.value.trim()) field.classList.add('filled');
+        else field.classList.remove('filled');
+      });
+    });
+ 
+    /* ============================================================
+       FORM VALIDATION & RIPPLE
+    ============================================================ */
+    const contactForm = document.getElementById('contactForm');
+    const formSuccess = document.getElementById('formSuccess');
+ 
+    function validateEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+ 
+    contactForm.addEventListener('submit', e => {
+      e.preventDefault();
+      let valid = true;
+      const name = document.getElementById('fname');
+      const email = document.getElementById('femail');
+      const msg = document.getElementById('fmsg');
+ 
+      document.getElementById('fieldName').classList.remove('error');
+      document.getElementById('fieldEmail').classList.remove('error');
+      document.getElementById('fieldMsg').classList.remove('error');
+ 
+      if (!name.value.trim()) { document.getElementById('fieldName').classList.add('error'); valid = false; }
+      if (!validateEmail(email.value)) { document.getElementById('fieldEmail').classList.add('error'); valid = false; }
+      if (!msg.value.trim()) { document.getElementById('fieldMsg').classList.add('error'); valid = false; }
+ 
+      if (valid) {
+        formSuccess.style.display = 'block';
+        contactForm.reset();
+        document.querySelectorAll('.form-field').forEach(f => f.classList.remove('filled', 'focused'));
+        setTimeout(() => { formSuccess.style.display = 'none'; }, 5000);
+      }
+    });
+ 
+    /* Button ripple effect */
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        const rect = this.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        const size = Math.max(rect.width, rect.height) * 2;
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        this.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 700);
+      });
+    });
+ 
+    /* ============================================================
+       SMOOTH NAV LINKS
+    ============================================================ */
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', e => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+ 
+    /* ============================================================
+       PARALLAX on hero shapes
+    ============================================================ */
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      document.querySelectorAll('.hero-shape').forEach((shape, i) => {
+        shape.style.transform = `translateY(${y * (i === 0 ? 0.15 : 0.08)}px)`;
+      });
+    }, { passive: true });
+  </script>
+</body>
+</html>
+ 
